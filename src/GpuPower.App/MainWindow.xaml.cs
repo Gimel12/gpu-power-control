@@ -135,7 +135,7 @@ public partial class MainWindow : Window
             SetStatus(title, string.Join("\n", results.Select((r, i) => r.Success ? r.Message : $"GPU {selected[i].Device.Index}: {r.Message}")) + refreshError, success != results.Count || refreshError != "");
         }
         catch (Exception ex) { detected = false; rows = []; RenderRows(); SetStatus("Check current GPU settings", ex.Message + " Detect again before retrying.", true); }
-        finally { SetBusy(false); }
+        finally { SetBusy(false); StatusPanel.BringIntoView(); }
     }
     private void SetStatus(string title, string detail, bool error = false)
     {

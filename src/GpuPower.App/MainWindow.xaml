@@ -19,6 +19,7 @@
               <StackPanel VerticalAlignment="Center"><TextBlock Text="1   Select your GPUs" FontSize="19" FontWeight="SemiBold"/><TextBlock x:Name="GpuCount" Text="Start by detecting the GPUs in this computer." Foreground="{StaticResource Muted}" Margin="0,6,18,0" TextWrapping="Wrap"/></StackPanel>
             </DockPanel>
             <Border x:Name="EmptyState" Background="#F5F8FA" CornerRadius="10" Padding="24" Margin="0,4,0,0"><StackPanel HorizontalAlignment="Center"><TextBlock Text="Ready when you are" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center"/><TextBlock Text="Press Detect GPUs to get started." Foreground="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap" HorizontalAlignment="Center"/></StackPanel></Border>
+            <ScrollViewer MaxHeight="350" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,-4,0" Padding="0,0,4,0">
             <ItemsControl x:Name="GpuList">
               <ItemsControl.ItemTemplate><DataTemplate>
                 <Border Background="#F5F8FA" BorderBrush="#E2EAF0" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,8,0,0">
@@ -39,6 +40,7 @@
                 </Border>
               </DataTemplate></ItemsControl.ItemTemplate>
             </ItemsControl>
+            </ScrollViewer>
             <DockPanel x:Name="SelectionBar" Visibility="Collapsed" Margin="0,14,0,0"><CheckBox x:Name="SelectAll" Content="Select all GPUs" Checked="SelectAll_Changed" Unchecked="SelectAll_Changed"/><TextBlock x:Name="SelectionSummary" TextAlignment="Right" Foreground="{StaticResource Muted}"/></DockPanel>
           </StackPanel>
         </Border>
