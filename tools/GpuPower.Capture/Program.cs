@@ -14,7 +14,7 @@ internal static class Program
     private static int Main()
     {
         Directory.CreateDirectory("captures");
-        var app = new GpuPower.App.App(); app.InitializeComponent();
+        var app = new CaptureApplication(); app.InitializeComponent();
         var window = new MainWindow(new DemoService(), true) { Width = 1100, Height = 900 };
         app.MainWindow = window;
         var exit = 0;
@@ -39,9 +39,7 @@ internal static class Program
             catch (Exception ex) { File.WriteAllText("captures/ERROR.txt", ex.ToString()); exit = 1; }
             app.Shutdown(exit);
         };
-        window.Show();
-        Dispatcher.Run();
-        return exit;
+        return app.Run(window);
     }
 
     private static async Task Capture(MainWindow window, string name)
@@ -69,4 +67,10 @@ internal static class Program
         }
         File.WriteAllText($"captures/{name}.json", JsonSerializer.Serialize(points, new JsonSerializerOptions { WriteIndented = true }));
     }
+}
+
+// Reuse production resources without launching the ordinary hardware-backed window.
+internal sealed class CaptureApplication : GpuPower.App.App
+{
+    protected override void OnStartup(StartupEventArgs e) { }
 }
