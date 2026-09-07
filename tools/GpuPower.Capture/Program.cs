@@ -5,6 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Windows.Markup;
+using System.Xml.Linq;
+using System.Reflection;
 using GpuPower.App;
 using GpuPower.Core;
 
@@ -14,7 +17,15 @@ internal static class Program
     private static int Main()
     {
         Directory.CreateDirectory("captures");
-        var app = new CaptureApplication(); app.InitializeComponent();
+        var app = new Application();
+        // Load the exact production resources without invoking its startup lifecycle.
+        using var resource = Assembly.GetExecutingAssembly().GetManifestResourceStream("OriginalApp.xaml")!;
+        var source = XDocument.Load(resource);
+        XNamespace presentation = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+        var dictionary = new XElement(presentation + "ResourceDictionary",
+            new XAttribute(XNamespace.Xmlns + "x", "http://schemas.microsoft.com/winfx/2006/xaml"),
+            source.Root!.Element(presentation + "Application.Resources")!.Elements());
+        app.Resources = (ResourceDictionary)XamlReader.Parse(dictionary.ToString());
         var window = new MainWindow(new DemoService(), true) { Width = 1100, Height = 900 };
         app.MainWindow = window;
         var exit = 0;
@@ -67,10 +78,4 @@ internal static class Program
         }
         File.WriteAllText($"captures/{name}.json", JsonSerializer.Serialize(points, new JsonSerializerOptions { WriteIndented = true }));
     }
-}
-
-// Reuse production resources without launching the ordinary hardware-backed window.
-internal sealed class CaptureApplication : GpuPower.App.App
-{
-    protected override void OnStartup(StartupEventArgs e) { }
 }
