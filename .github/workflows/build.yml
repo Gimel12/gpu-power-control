@@ -1,0 +1,48 @@
+name: Windows build and verification
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Test GPU safety and driver integration logic
+        run: dotnet run --project tests/GpuPower.Tests -c Release
+      - name: Build portable Windows application
+        run: dotnet publish src/GpuPower.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false -o artifacts/windows
+      - name: Run packaged app UI smoke test
+        shell: pwsh
+        run: |
+          $process = Start-Process -FilePath ./artifacts/windows/GPU-Power-Control.exe -ArgumentList '--smoke-test' -PassThru
+          if (-not $process.WaitForExit(90000)) { $process.Kill(); throw 'UI smoke test timed out' }
+          if ($process.ExitCode -ne 0) { Get-Content smoke-result.txt -ErrorAction SilentlyContinue; throw "UI smoke test failed: $($process.ExitCode)" }
+          Get-Content smoke-result.txt
+          if (-not (Test-Path smoke-preview.png)) { throw 'UI preview missing' }
+      - name: Assemble customer download
+        shell: pwsh
+        run: |
+          Copy-Item docs/QUICK-START.txt artifacts/windows/QUICK-START.txt
+          Copy-Item LICENSE artifacts/windows/LICENSE.txt
+          Compress-Archive -Path artifacts/windows/* -DestinationPath artifacts/GPU-Power-Control-Windows-x64.zip
+          $files = @('artifacts/windows/GPU-Power-Control.exe', 'artifacts/GPU-Power-Control-Windows-x64.zip')
+          $lines = foreach ($file in $files) { $h = Get-FileHash $file -Algorithm SHA256; "$($h.Hash.ToLower())  $([IO.Path]::GetFileName($file))" }
+          $lines | Set-Content artifacts/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-release-and-verification
+          path: |
+            artifacts/
+            smoke-preview.png
+            smoke-result.txt
+          if-no-files-found: error

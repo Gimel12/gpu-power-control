@@ -1,0 +1,61 @@
+<Window x:Class="GpuPower.App.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="GPU Power Control" Width="1100" Height="850" MinWidth="850" MinHeight="680" WindowStartupLocation="CenterScreen" Background="#F3F7FA" FontFamily="Segoe UI" FontSize="14">
+  <Grid>
+    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="36,28,36,24">
+        <DockPanel Margin="0,0,0,28">
+          <Border DockPanel.Dock="Left" Background="#007B75" CornerRadius="12" Width="46" Height="46" Margin="0,0,14,0"><TextBlock Text="&#x26A1;" Foreground="White" FontSize="27" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+          <StackPanel DockPanel.Dock="Left"><TextBlock Text="GPU POWER CONTROL" FontSize="16" FontWeight="Bold"/><TextBlock Text="Your GPUs. Your power budget." Foreground="{StaticResource Muted}" Margin="0,5,0,0"/></StackPanel>
+          <Border HorizontalAlignment="Right" VerticalAlignment="Center" Background="#E1EFEB" CornerRadius="14" Padding="12,6"><TextBlock x:Name="AccessLabel" Text="Administrator access" Foreground="#006B60" FontSize="12" FontWeight="SemiBold"/></Border>
+        </DockPanel>
+        <Border x:Name="DemoBanner" Visibility="Collapsed" Background="#FFF0D4" CornerRadius="10" Padding="14" Margin="0,0,0,20"><TextBlock Text="DEMO PREVIEW  ·  Sample GPUs only. No hardware settings are changed." Foreground="#795300" TextWrapping="Wrap"/></Border>
+        <TextBlock Text="Find your balance." FontSize="36" FontWeight="SemiBold"/>
+        <TextBlock Text="Choose how much power your NVIDIA GPUs can use." Foreground="{StaticResource Muted}" FontSize="16" Margin="0,7,0,24"/>
+        <Border Background="White" CornerRadius="16" BorderBrush="#DFE8EF" BorderThickness="1" Padding="22" Margin="0,0,0,24">
+          <StackPanel>
+            <DockPanel Margin="0,0,0,14">
+              <Button x:Name="DetectButton" DockPanel.Dock="Right" Content="Detect GPUs" Click="Detect_Click" Background="#007B75" Foreground="White" BorderBrush="#007B75"/>
+              <StackPanel VerticalAlignment="Center"><TextBlock Text="1   Select your GPUs" FontSize="19" FontWeight="SemiBold"/><TextBlock x:Name="GpuCount" Text="Start by detecting the GPUs in this computer." Foreground="{StaticResource Muted}" Margin="0,6,18,0" TextWrapping="Wrap"/></StackPanel>
+            </DockPanel>
+            <Border x:Name="EmptyState" Background="#F5F8FA" CornerRadius="10" Padding="24" Margin="0,4,0,0"><StackPanel HorizontalAlignment="Center"><TextBlock Text="Ready when you are" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center"/><TextBlock Text="Press Detect GPUs to get started." Foreground="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap" HorizontalAlignment="Center"/></StackPanel></Border>
+            <ItemsControl x:Name="GpuList">
+              <ItemsControl.ItemTemplate><DataTemplate>
+                <Border Background="#F5F8FA" BorderBrush="#E2EAF0" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,8,0,0">
+                  <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="32"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <CheckBox IsChecked="{Binding Selected, Mode=TwoWay}" Checked="Selection_Changed" Unchecked="Selection_Changed" VerticalAlignment="Top" Margin="0,4,0,0" AutomationProperties.Name="{Binding SelectionLabel}"/>
+                    <StackPanel Grid.Column="1">
+                      <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding Identity}" Foreground="{StaticResource Muted}" FontSize="12" Margin="0,5,0,13" TextWrapping="Wrap"/>
+                      <UniformGrid Columns="4">
+                        <StackPanel><TextBlock Text="POWER LIMIT" FontSize="10" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding Limit}" FontSize="22" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="POWER DRAW" FontSize="10" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding Draw}" FontSize="22" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="TEMPERATURE" FontSize="10" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding Temperature}" FontSize="22" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel>
+                        <StackPanel><TextBlock Text="SUPPORTED RANGE" FontSize="10" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding Range}" FontSize="18" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+                      </UniformGrid>
+                      <TextBlock Text="{Binding Capability}" Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate></ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <DockPanel x:Name="SelectionBar" Visibility="Collapsed" Margin="0,14,0,0"><CheckBox x:Name="SelectAll" Content="Select all GPUs" Checked="SelectAll_Changed" Unchecked="SelectAll_Changed"/><TextBlock x:Name="SelectionSummary" TextAlignment="Right" Foreground="{StaticResource Muted}"/></DockPanel>
+          </StackPanel>
+        </Border>
+        <TextBlock Text="2   Choose a power mode" FontSize="19" FontWeight="SemiBold"/>
+        <TextBlock Text="Applies to the selected GPUs. These are power caps; actual usage varies with workload." Foreground="{StaticResource Muted}" Margin="0,6,0,14" TextWrapping="Wrap"/>
+        <UniformGrid Columns="3" Margin="-5,0,-5,0">
+          <Button x:Name="HighButton" Click="Mode_Click" Tag="550" Margin="5,0" Padding="20,20" HorizontalContentAlignment="Stretch" AutomationProperties.Name="Apply High mode, 550 watts"><StackPanel><TextBlock Text="HIGH" FontSize="12" FontWeight="Bold" Foreground="#5864B7"/><TextBlock Text="550 W" FontSize="34" FontWeight="SemiBold" Margin="0,8,0,6"/><TextBlock Text="A higher power budget" Foreground="{StaticResource Muted}" FontWeight="Normal" FontSize="12"/><TextBlock Text="Apply High  →" Foreground="#5864B7" Margin="0,17,0,0"/></StackPanel></Button>
+          <Button x:Name="BalancedButton" Click="Mode_Click" Tag="450" Margin="5,0" Padding="20,20" Background="#E8F5F1" BorderBrush="#7CBBAE" AutomationProperties.Name="Apply Balanced mode, 450 watts"><StackPanel><TextBlock Text="BALANCED" FontSize="12" FontWeight="Bold" Foreground="#007B75"/><TextBlock Text="450 W" FontSize="34" FontWeight="SemiBold" Margin="0,8,0,6"/><TextBlock Text="The middle power setting" Foreground="{StaticResource Muted}" FontWeight="Normal" FontSize="12"/><TextBlock Text="Apply Balanced  →" Foreground="#007B75" Margin="0,17,0,0"/></StackPanel></Button>
+          <Button x:Name="EfficientButton" Click="Mode_Click" Tag="350" Margin="5,0" Padding="20,20" AutomationProperties.Name="Apply Efficient mode, 350 watts"><StackPanel><TextBlock Text="EFFICIENT" FontSize="12" FontWeight="Bold" Foreground="#397349"/><TextBlock Text="350 W" FontSize="34" FontWeight="SemiBold" Margin="0,8,0,6"/><TextBlock Text="A lower power budget" Foreground="{StaticResource Muted}" FontWeight="Normal" FontSize="12"/><TextBlock Text="Apply Efficient  →" Foreground="#397349" Margin="0,17,0,0"/></StackPanel></Button>
+        </UniformGrid>
+        <DockPanel Margin="0,16,0,20">
+          <Button x:Name="RestoreButton" DockPanel.Dock="Right" Content="Restore Default" Click="Restore_Click" Padding="16,10"/>
+          <TextBlock Text="Default restores each selected GPU's factory power limit.&#x0a;Unavailable modes are disabled for your selected GPUs." Foreground="{StaticResource Muted}" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0" TextWrapping="Wrap"/>
+        </DockPanel>
+        <Border x:Name="StatusPanel" Background="#E8EEF4" CornerRadius="12" Padding="16"><StackPanel><TextBlock x:Name="StatusTitle" Text="No changes made" FontWeight="SemiBold" FontSize="15"/><TextBlock x:Name="StatusDetail" Text="Detect your GPUs, select the cards you want to control, then choose a mode." Foreground="{StaticResource Muted}" Margin="0,6,0,0" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite"/></StackPanel></Border>
+      </StackPanel>
+    </ScrollViewer>
+    <Border Grid.Row="1" Background="White" BorderBrush="#DFE8EF" BorderThickness="0,1,0,0" Padding="36,12"><DockPanel><TextBlock DockPanel.Dock="Right" Text="v1.0.0" Foreground="{StaticResource Muted}" FontSize="12"/><TextBlock Text="Settings may reset after a restart or driver reload. Open the app to reapply." Foreground="{StaticResource Muted}" FontSize="12" TextWrapping="Wrap" Margin="0,0,12,0"/></DockPanel></Border>
+  </Grid>
+</Window>

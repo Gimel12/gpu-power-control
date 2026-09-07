@@ -1,0 +1,35 @@
+GPU POWER CONTROL - Windows x64
+
+1. Download GPU-Power-Control.exe from the project's GitHub Releases page.
+2. Double-click the app and approve the Windows administrator prompt.
+3. Press Detect GPUs.
+4. Select the GPUs to change (or Select all GPUs).
+5. Press High (550 W), Balanced (450 W), or Efficient (350 W).
+6. Check that the app says Power settings verified for each selected GPU.
+
+Restore Default restores the factory limit reported by each GPU's driver.
+Modes outside the selected GPUs' supported ranges are disabled.
+For mixed GPU systems, select only the cards that support the desired mode.
+
+Requirements: Windows 11 x64 or Windows Server 2022/2025 with Desktop
+Experience, NVIDIA GPU with supported power management, compatible NVIDIA
+driver, and administrator access. No Python or separate .NET install needed.
+Other Windows versions have not been validated. Server Core is not supported.
+
+Power settings may reset on restart, driver reload, or when another tuning
+application changes them. Reopen this app to check and reapply. It does not
+create startup tasks or install a background service.
+
+If a GPU cannot be detected, install/update its NVIDIA Windows driver and
+restart. If a mode fails, read the per-GPU result; other selected GPUs may
+already have changed. Press Detect GPUs to inspect current limits.
+
+This release is unsigned. Windows may show an unknown-publisher or SmartScreen
+warning. Your organization may require a signed application before allowing it.
+Download only from the official repository and verify SHA256SUMS.txt if needed.
+
+The UI and control logic were tested on a Windows build runner using simulated
+GPU data. Physical NVIDIA GPU power changes require validation on the target
+customer system; the build runner does not have an RTX PRO 6000.
+
+Support / source: https://github.com/Gimel12/gpu-power-control
